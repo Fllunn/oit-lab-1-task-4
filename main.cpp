@@ -5,70 +5,83 @@
 #include <utility>
 
 
-double CalculateRecursiveDouble(int n, double x, double summand = 1.0, int i = 0) {
+std::pair<double, double> CalculateRecursiveDouble(int n, double x, double summand = 1.0, int i = 0) {
     // Если кол-во членов ряда <= нулю, то сумма равна 0
     if (n <= 0)
-        return 0.0;
+        return {0.0, 0.0};
     // Если кол-во членов ряда превышает заданное, то выходим из рекурсии
     if (i >= n)
-        return 0.0;
+        return {0.0, 0.0};
 
     double currentSummand = summand;
     double numMult = ((i + 1.0) * (i + 1.0) + 1.0) / ((i + 1.0) * (i * i + 1.0)) * (x / 2.0);
     double nextSummand = currentSummand * numMult;
 
-    return currentSummand + CalculateRecursiveDouble(n, x, nextSummand, i + 1);
+    // Если это последний элемент
+    if (i == n - 1) {
+        return {currentSummand, currentSummand};
+    }
+
+    std::pair<double, double> result = CalculateRecursiveDouble(n, x, nextSummand, i + 1);
+    return {currentSummand + result.first, result.second};
 }
 
-float CalculateRecursiveFloat(int n, float x, float summand = 1.0f, int i = 0) {
+std::pair<float, float> CalculateRecursiveFloat(int n, float x, float summand = 1.0f, int i = 0) {
     // Если кол-во членов ряда <= нулю, то сумма равна 0
     if (n <= 0)
-        return 0.0f;
+        return {0.0f, 0.0f};
     // Если кол-во членов ряда превышает заданное, то выходим из рекурсии
     if (i >= n)
-        return 0.0f;
+        return {0.0f, 0.0f};
 
     float currentSummand = summand;
     float numMult = ((i + 1.0f) * (i + 1.0f) + 1.0f) / ((i + 1.0f) * (i * i + 1.0f)) * (x / 2.0f);
     float nextSummand = currentSummand * numMult;
 
-    return currentSummand + CalculateRecursiveFloat(n, x, nextSummand, i + 1);
+    // Если это последний элемент
+    if (i == n - 1) {
+        return {currentSummand, currentSummand};
+    }
+
+    std::pair<float, float> result = CalculateRecursiveFloat(n, x, nextSummand, i + 1);
+    return {currentSummand + result.first, result.second};
 }
 
 
-double CalculateReccurrentDouble(int n, double x) {
+std::pair<double, double> CalculateReccurrentDouble(int n, double x) {
     // Если кол-во членов ряда <= нулю, то сумма равна 0
     if (n <= 0)
-        return 0.0;
+        return {0.0, 0.0};
 
     double sum = 1.0;
     double summand = 1.0;
 
-    for (int i = 1; i < n - 1; i++) {
-        // К сумме прибавляем предыдущий член ряда
-        sum += summand;
+    for (int i = 0; i < n - 1; i++) {
         // Вычисляем рекуррентно следующий член ряда
         summand *= ((i + 1.0) * (i + 1.0) + 1.0) / ((i + 1.0) * (i * i + 1.0)) * (x / 2.0);
+
+        // К сумме прибавляем предыдущий член ряда
+        sum += summand;
     }
-    return sum;
+    return {sum, summand};
 }
 
-float CalculateReccurrentFloat(int n, float x) {
+std::pair<float, float> CalculateReccurrentFloat(int n, float x) {
     // Если кол-во членов ряда <= нулю, то сумма равна 0
     if (n <= 0)
-        return 0.0f;
+        return {0.0f, 0.0f};
 
     float sum = 1.0f;
     float summand = 1.0f;
 
-    for (int i = 1; i < n - 1; i++) {
-        // К сумме прибавляем предыдущий член ряда
-        sum += summand;
+    for (int i = 0; i < n - 1; i++) {
         // Вычисляем рекуррентно следующий член ряда
         summand *= ((i + 1.0f) * (i + 1.0f) + 1.0f) / ((i + 1.0f) * (i * i + 1.0f)) * (x / 2.0f);
-        // std::cout << summand << std::endl;
+
+        // К сумме прибавляем предыдущий член ряда
+        sum += summand;
     }
-    return sum;
+    return {sum, summand};
 }
 
 
@@ -144,17 +157,23 @@ double CalculateFunctionDouble(double x) {
 void PrintRecursive(double x, int n) {
     float xFloat = static_cast<float>(x);
 
-    std::cout << "Сумма ряда с помощью рекурсии (double): " << CalculateRecursiveDouble(n, x) << '\n';
-    std::cout << "Сумма ряда с помощью рекурсии (float) : " << CalculateRecursiveFloat(n, xFloat) << '\n';
+    std::pair<double, double> resDouble = CalculateRecursiveDouble(n, x);
+    std::pair<float, float> resFloat = CalculateRecursiveFloat(n, xFloat);
+
+    std::cout << "Сумма ряда с помощью рекурсии (double): " << resDouble.first << " Последний член:  " << resDouble.second << '\n';
+    std::cout << "Сумма ряда с помощью рекурсии (float) : " << resFloat.first << " Последний член: " << resFloat.second << '\n';
     std::cout << '\n';
 }
 
 void PrintRecurrent(double x, int n) {
     float xFloat = static_cast<float>(x);
 
-    std::cout << "Сумма ряда с помощью рекуррентной формулы в цикле (double): " << CalculateRecursiveDouble(n, x) << '\n';
-    std::cout << "Сумма ряда с помощью рекуррентной формулы в цикле (float) : " << CalculateRecursiveFloat(n, xFloat) << '\n';
-    std::cout << '\n';
+    std::pair<double, double> resDouble = CalculateReccurrentDouble(n, x);
+    std::pair<float, float> resFloat = CalculateReccurrentFloat(n, xFloat);
+
+    std::cout << "Сумма ряда с помощью рекуррентной формулы в цикле (double): " << resDouble.first << " Последний член:  " << resDouble.second << '\n';
+    std::cout << "Сумма ряда с помощью рекуррентной формулы в цикле (float) : " << resFloat.first << " Последний член: " << resFloat.second << '\n';
+    std:: cout << '\n';
 }
 
 void PrintEps(double x, double eps) {
@@ -162,7 +181,7 @@ void PrintEps(double x, double eps) {
     float epsFloat = static_cast<float>(eps);
 
     std::pair<double, int> resDouble = CalculateEpsilonDouble(x, eps);
-    std::pair<float, int> resFloat = CalculateEpsilonDouble(xFloat, epsFloat);
+    std::pair<float, int> resFloat = CalculateEpsilonFloat(xFloat, epsFloat);
 
     std::cout << "Сумма ряда с помощью точности epsilon (double): " << resDouble.first << " Количество итераций: " << resDouble.second << '\n';
     std::cout << "Сумма ряда с помощью точности epsilon (float) : " << resFloat.first << " Количество итераций: " << resFloat.second << '\n';
@@ -229,13 +248,13 @@ double GetValidDouble() {
             numInput = std::stod(input, &pos);
 
             if (pos != input.size()) {
-                std::cout << "Пожалуйста, введите корректное дробное число!" << '\n';
+                std::cout << "Пожалуйста, введите корректное дробное число! (разделитель точка или запятая, в зависимости от локали)" << '\n';
                 continue;
             }
             isChecked = true;
         }
         catch (std::invalid_argument) {
-            std::cout << "Пожалуйста, введите корректное дробное число!" << '\n';
+            std::cout << "Пожалуйста, введите корректное дробное число! (разделитель точка или запятая, в зависимости от локали)" << '\n';
         }
         catch (std::out_of_range) {
             std::cout << "Введенное значение вышло за границы типа double!" << '\n';
@@ -250,7 +269,7 @@ double GetValidDouble() {
 
 
 int main() {
-    // смена кодировки на utf-8
+    // смена кодировки на utf-8 для clion
     system("chcp 65001");
 
     // setlocale(LC_ALL, "Russian"); // не работает в clion
@@ -263,7 +282,7 @@ int main() {
 
     while (numInput < -1000 || numInput > 1000) {
         std::cout << "Пожалуйста, введите число x в диапазоне [-1000, 1000], чтобы избежать переполнений: ";
-        numInput = GetValidInt();
+        numInput = GetValidDouble();
     }
 
     std::cout << '\n' << "Введите количество слагаемых в ряде: ";
@@ -274,13 +293,15 @@ int main() {
         cntSummand = GetValidInt();
     }
 
-    std::cout << '\n' << "Введите точность epsilon для вычисления суммы ряда с заданным epsilon:";
+    std::cout << '\n' << "Введите точность epsilon для вычисления суммы ряда с заданным epsilon: ";
     double eps = GetValidDouble();
 
-    while (eps < 0) {
+    while (eps <= 0) {
         std::cout << "Пожалуйста, введите значение точности, которое больше нуля!" << '\n';
         eps = GetValidDouble();
     }
+
+    std::cout << "\n";
 
     PrintRecurrent(numInput, cntSummand);
     PrintRecursive(numInput, cntSummand);
