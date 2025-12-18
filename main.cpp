@@ -1,7 +1,8 @@
 #include "iostream"
 #include "cmath"
 #include "iomanip"
-#include <limits>
+#include "string"
+#include <utility>
 
 
 double CalculateRecursiveDouble(int n, double x, double summand = 1.0, int i = 0) {
@@ -71,7 +72,7 @@ float CalculateReccurrentFloat(int n, float x) {
 }
 
 
-double CalculateEpsilonDouble(double x, double eps) {
+std::pair<double, int> CalculateEpsilonDouble(double x, double eps) {
     double sum = 0.0;
     int i = 0;
     double summand = 1.0;
@@ -81,10 +82,10 @@ double CalculateEpsilonDouble(double x, double eps) {
         summand *= ((i + 1.0) * (i + 1.0) + 1.0) / ((i + 1.0) * (i * i + 1.0)) * (x / 2.0);
         i++;
     }
-    return sum;
+    return { sum, i };
 }
 
-float CalculateEpsilonFloat(float x, float eps) {
+std::pair<float, int> CalculateEpsilonFloat(float x, float eps) {
     float sum = 0.0f;
     int i = 0;
     float summand = 1.0f;
@@ -94,38 +95,40 @@ float CalculateEpsilonFloat(float x, float eps) {
         summand *= ((i + 1.0f) * (i + 1.0f) + 1.0f) / ((i + 1.0f) * (i * i + 1.0f)) * (x / 2.0f);
         i++;
     }
-    return sum;
+    return { sum, i };
 }
 
 
-double CalculateMinEpsilonDouble(double x) {
-    double eps = std::numeric_limits<double>::min();
+std::pair<double, int> CalculateMinEpsilonDouble(double x) {
+    double eps = 0.0;
 
     double sum = 0.0;
     int i = 0;
     double summand = 1.0;
 
-    while (std::abs(summand) >= eps) {
+    // Выполняем пока член ряда не станет равен нулю
+    while (std::abs(summand) != eps) {
         sum += summand;
         summand *= ((i + 1.0) * (i + 1.0) + 1.0) / ((i + 1.0) * (i * i + 1.0)) * (x / 2.0);
         i++;
     }
-    return sum;
+    return {sum, i };
 }
 
-float CalculateMinEpsilonFloat(float x) {
-    float eps = std::numeric_limits<float>::min();
+std::pair<float, int> CalculateMinEpsilonFloat(float x) {
+    float eps = 0.0f;
 
     float sum = 0.0f;
     int i = 0;
     float summand = 1.0f;
 
-    while (std::abs(summand) >= eps) {
+    // Выполняем пока член ряда не станет равен нулю
+    while (std::abs(summand) != eps) {
         sum += summand;
         summand *= ((i + 1.0f) * (i + 1.0f) + 1.0f) / ((i + 1.0f) * (i * i + 1.0f)) * (x / 2.0f);
         i++;
     }
-    return sum;
+    return { sum, i };
 }
 
 
@@ -138,21 +141,151 @@ double CalculateFunctionDouble(double x) {
 }
 
 
-int main() {
-    int n = 5;
-    float x = 1.0f;
-    double doubleX = 1.0;
-    float eps = 0.00000001f;
+void PrintRecursive(double x, int n) {
+    float xFloat = static_cast<float>(x);
 
-    // Стандартно в cout выводится 6 знаков после запятой, меняем на 15 для сравнения типов
-    std::cout << std::fixed << std::setprecision(15);
-    // Передаем в рекурсию (n - 1) чтобы посчиталась сумма ряда, где n слагаемых
-    std::cout << "Recursive " << CalculateRecursiveFloat(n - 1, x) << '\n';
-    std::cout << "Reccurrent " << CalculateReccurrentFloat(n, x) << '\n';
-    std::cout << "Eps " << CalculateEpsilonFloat(x, eps) << '\n';
-    std::cout << "Func float " << CalculateFunctionFloat(x) << '\n';
-    std::cout << "Func double " << CalculateFunctionDouble(x) << '\n';
-    std::cout << "Eps float min " << CalculateMinEpsilonFloat(x) << '\n';
-    std::cout << "Eps double min " << CalculateMinEpsilonDouble(x) << '\n';
+    std::cout << "Сумма ряда с помощью рекурсии (double): " << CalculateRecursiveDouble(n, x) << '\n';
+    std::cout << "Сумма ряда с помощью рекурсии (float) : " << CalculateRecursiveFloat(n, xFloat) << '\n';
+    std::cout << '\n';
+}
+
+void PrintRecurrent(double x, int n) {
+    float xFloat = static_cast<float>(x);
+
+    std::cout << "Сумма ряда с помощью рекуррентной формулы в цикле (double): " << CalculateRecursiveDouble(n, x) << '\n';
+    std::cout << "Сумма ряда с помощью рекуррентной формулы в цикле (float) : " << CalculateRecursiveFloat(n, xFloat) << '\n';
+    std::cout << '\n';
+}
+
+void PrintEps(double x, double eps) {
+    float xFloat = static_cast<float>(x);
+    float epsFloat = static_cast<float>(eps);
+
+    std::pair<double, int> resDouble = CalculateEpsilonDouble(x, eps);
+    std::pair<float, int> resFloat = CalculateEpsilonDouble(xFloat, epsFloat);
+
+    std::cout << "Сумма ряда с помощью точности epsilon (double): " << resDouble.first << " Количество итераций: " << resDouble.second << '\n';
+    std::cout << "Сумма ряда с помощью точности epsilon (float) : " << resFloat.first << " Количество итераций: " << resFloat.second << '\n';
+    std::cout << '\n';
+
+    std::pair<double, int> resMinEpsDouble = CalculateMinEpsilonDouble(x);
+    std::pair<float, int> resMinEpsFloat = CalculateMinEpsilonFloat(x);
+
+    std::cout << "Сумма ряда с помощью максимально возможной точностью (double): " << resMinEpsDouble.first << " Количество итераций: " << resMinEpsDouble.second << '\n';
+    std::cout << "Сумма ряда с помощью максимально возможной точностью (float) : " << resMinEpsFloat.first << " Количество итераций: " << resMinEpsFloat.second << '\n';
+    std::cout << '\n';
+}
+
+void PrintFunc(double x) {
+    float xFloat = static_cast<float>(x);
+
+    std::cout << "Точное значение функции f(x) (double): " << CalculateFunctionDouble(x) << '\n';
+    std::cout << "Точное значение функции f(x) (float) : " << CalculateFunctionFloat(xFloat) << '\n';
+}
+
+
+int GetValidInt() {
+    int numInput = 0;
+    bool isChecked = false;
+
+    do {
+        try {
+            std::string input;
+            std::cin >> input;
+
+            size_t pos = 0;
+            numInput = std::stoi(input, &pos);
+
+            if (pos !=  input.size()) {
+                std::cout << "Пожалуйста, введите корректное целое число!" << '\n';
+                continue;
+            }
+            isChecked = true;
+        }
+        catch (std::invalid_argument) {
+            std::cout << "Пожалуйста, введите корректное целое число!" << '\n';
+        }
+        catch (std::out_of_range) {
+            std::cout << "Введенное значение вышло за границы типа int!" << '\n';
+        }
+        catch (...) {
+            std::cout << "Произошла непредвиденная ошибка" << '\n';
+        }
+    } while (!isChecked);
+
+    return numInput;
+}
+
+double GetValidDouble() {
+    double numInput = 0.0;
+    bool isChecked = false;
+
+    do {
+        try {
+            std::string input;
+            std::cin >> input;
+
+            size_t pos = 0;
+            numInput = std::stod(input, &pos);
+
+            if (pos != input.size()) {
+                std::cout << "Пожалуйста, введите корректное дробное число!" << '\n';
+                continue;
+            }
+            isChecked = true;
+        }
+        catch (std::invalid_argument) {
+            std::cout << "Пожалуйста, введите корректное дробное число!" << '\n';
+        }
+        catch (std::out_of_range) {
+            std::cout << "Введенное значение вышло за границы типа double!" << '\n';
+        }
+        catch (...) {
+            std::cout << "Произошла непредвиденная ошибка" << '\n';
+        }
+    } while (!isChecked);
+
+    return numInput;
+}
+
+
+int main() {
+    // смена кодировки на utf-8
+    system("chcp 65001");
+
+    // setlocale(LC_ALL, "Russian"); // не работает в clion
+
+    // Стандартно в cout выводится 6 знаков после запятой, меняем на 10для сравнения типов
+    std::cout << std::fixed << std::setprecision(10);
+
+    std::cout << "Введите число x: ";
+    double numInput = GetValidDouble();
+
+    while (numInput < -1000 || numInput > 1000) {
+        std::cout << "Пожалуйста, введите число x в диапазоне [-1000, 1000], чтобы избежать переполнений: ";
+        numInput = GetValidInt();
+    }
+
+    std::cout << '\n' << "Введите количество слагаемых в ряде: ";
+    int cntSummand = GetValidInt();
+
+    while (cntSummand > 2000) {
+        std::cout << "Пожалуйста, введите число слагаемых в ряде, которое <= 2000, чтобы избежать переполнения стека!" << '\n';
+        cntSummand = GetValidInt();
+    }
+
+    std::cout << '\n' << "Введите точность epsilon для вычисления суммы ряда с заданным epsilon:";
+    double eps = GetValidDouble();
+
+    while (eps < 0) {
+        std::cout << "Пожалуйста, введите значение точности, которое больше нуля!" << '\n';
+        eps = GetValidDouble();
+    }
+
+    PrintRecurrent(numInput, cntSummand);
+    PrintRecursive(numInput, cntSummand);
+    PrintEps(numInput, eps);
+    PrintFunc(numInput);
+
     return 0;
 }
