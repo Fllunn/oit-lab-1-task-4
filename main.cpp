@@ -90,7 +90,7 @@ std::pair<double, int> CalculateEpsilonDouble(double x, double eps) {
     int i = 0;
     double summand = 1.0;
 
-    while (std::abs(summand) >= eps) {
+    while (std::abs(summand) >= eps && std::isfinite(summand)) {
         sum += summand;
         summand *= ((i + 1.0) * (i + 1.0) + 1.0) / ((i + 1.0) * (i * i + 1.0)) * (x / 2.0);
         i++;
@@ -103,7 +103,7 @@ std::pair<float, int> CalculateEpsilonFloat(float x, float eps) {
     int i = 0;
     float summand = 1.0f;
 
-    while (std::abs(summand) >= eps) {
+    while (std::abs(summand) >= eps && std::isfinite(summand)) {
         sum += summand;
         summand *= ((i + 1.0f) * (i + 1.0f) + 1.0f) / ((i + 1.0f) * (i * i + 1.0f)) * (x / 2.0f);
         i++;
@@ -119,8 +119,8 @@ std::pair<double, int> CalculateMinEpsilonDouble(double x) {
     int i = 0;
     double summand = 1.0;
 
-    // Выполняем пока член ряда не станет равен нулю
-    while (std::abs(summand) != eps) {
+    // Останавливаемся когда член ряда станет равен нулю бесконечности или nan
+    while (std::abs(summand) != eps && std::isfinite(summand)) {
         sum += summand;
         summand *= ((i + 1.0) * (i + 1.0) + 1.0) / ((i + 1.0) * (i * i + 1.0)) * (x / 2.0);
         i++;
@@ -135,8 +135,8 @@ std::pair<float, int> CalculateMinEpsilonFloat(float x) {
     int i = 0;
     float summand = 1.0f;
 
-    // Выполняем пока член ряда не станет равен нулю
-    while (std::abs(summand) != eps) {
+    // Останавливаемся когда член ряда станет равен нулю бесконечности или nan
+    while (std::abs(summand) != eps && std::isfinite(summand)) {
         sum += summand;
         summand *= ((i + 1.0f) * (i + 1.0f) + 1.0f) / ((i + 1.0f) * (i * i + 1.0f)) * (x / 2.0f);
         i++;
